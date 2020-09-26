@@ -1,0 +1,263 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Create/Update Submission",
+    "description": "This API allows customer to update",
+    "version": "1.1.0",
+    "contact": {
+      "name": "abc",
+      "email": "abc@gmail.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "sales",
+      "description": "Create or Update Submission."
+    }
+  ],
+  "paths": {
+    "/sales-details/customer/{entityId}/{year}": {
+      "post": {
+        "summary": "Create/Update Submission",
+        "description": "This API allows a customer to update ",
+        "operationId": "createOrUpdate",
+        "tags": [
+          "sales"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/entityIdParam"
+          },
+          {
+            "$ref": "#/components/parameters/yearParam"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Create/Update Submission Request",
+          "content": {
+            "application/json;charset=UTF-8": {
+              "schema": {
+                "$ref": "#/components/schemas/requestSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The request has been accepted, with no content returned.",
+            "headers": {
+              "SessionId": {
+                "$ref": "#/components/headers/sessionId"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request\n```\nA bad request has been made\n\"code\"                              \"reason\"\nINVALID_ENTITY_ID                   Invalid parameter entityId.\nINVALID_YEAR                        Invalid parameter year.\nINVALID_PAYLOAD                     Invalid payload.\n",
+            "headers": {
+              "SorrelationId": {
+                "$ref": "#/components/headers/sessionId"
+              }
+            },
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/errorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity\n```\n\"code\"                        \"reason\"\nUNPROCESSABLE_ENTITY          Backend returned  Unprocessable Entity.",
+            "headers": {
+              "SorrelationId": {
+                "$ref": "#/components/headers/sessionId"
+              }
+            },
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/errorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error\n```\n\"code\"         \"reason\"\nSERVER_ERROR   Server error.",
+            "headers": {
+              "SessionId": {
+                "$ref": "#/components/headers/sessionId"
+              }
+            },
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/errorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable\n```\n\"code\"                \"reason\"\nSERVICE_UNAVAILABLE   Service unavailable",
+            "headers": {
+              "SessionId": {
+                "$ref": "#/components/headers/sessionId"
+              }
+            },
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/errorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "headers": {
+      "sessionId": {
+        "description": "sessionId - Used for traceability purposes when present",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9A_Za-z]{40}$"
+        }
+      },
+      "Content-Type": {
+        "description": "Indicates the client what the content type of the returned content actually is",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "application/json"
+          ]
+        }
+      }
+    },
+    "parameters": {
+      "entityIdParam": {
+        "in": "path",
+        "name": "entityId",
+        "description": "entity",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9]{1,10}$"
+        }
+      },
+      "yearParam": {
+        "in": "path",
+        "name": "year",
+        "description": "The year to which the entity relates.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^2[0-9]{3}-[0-9]{2}$"
+        }
+      }
+    },
+    "schemas": {
+      "errorResponse": {
+        "title": "Error Response Schema",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "failures"
+        ],
+        "properties": {
+          "failures": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "reason"
+              ],
+              "properties": {
+                "code": {
+                  "description": "Keys for all the errors returned",
+                  "type": "string",
+                  "pattern": "^[A-Z0-9_-]{1,160}$"
+                },
+                "reason": {
+                  "description": "A simple description for the failure",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              }
+            }
+          }
+        }
+      },
+      "requestSchema": {
+        "title": "Request Schema",
+        "type": "object",
+        "properties": {
+          "year": {
+            "pattern": "^2[0-9]{3}-[0-9]{2}$",
+            "type": "string"
+          },
+          "salesDetails": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "amount": {
+                  "type": "number",
+                  "format": "double",
+                  "minimum": 0,
+                  "maximum": 999999999.99,
+                  "multipleOf": 0.01
+                },
+                "paid": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false,
+              "minProperties": 1,
+              "required": [
+                "amount"
+              ]
+            }
+          },
+          "customerDetails": {
+            "type": "object",
+            "properties": {
+              "customerReference": {
+                "pattern": "^[0-9a-zA-Z]{1,90}$",
+                "type": "string",
+                "example": "String"
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1,
+            "required": [
+              "customerReference"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "minProperties": 1
+      }
+    }
+  }
+}
